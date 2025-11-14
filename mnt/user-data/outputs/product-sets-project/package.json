@@ -1,0 +1,30 @@
+{
+  "name": "product-sets-project",
+  "version": "1.0.0",
+  "description": "Product Sets integration for Shoptet and ESO9",
+  "private": true,
+  "scripts": {
+    "test": "node test.js",
+    "deploy": "./deploy.sh",
+    "deploy:terraform": "cd terraform && terraform apply",
+    "deploy:shoptet": "cd cloud-functions/import-shoptet && gcloud functions deploy import-shoptet-products --gen2 --runtime=nodejs20 --region=us-central1 --source=. --entry-point=importShoptetProducts --trigger-http",
+    "deploy:eso": "cd cloud-functions/import-eso && gcloud functions deploy import-eso-sets --gen2 --runtime=nodejs20 --region=us-central1 --source=. --entry-point=importEsoSets --trigger-http",
+    "deploy:api": "cd cloud-functions/api && gcloud run deploy product-sets-api --source=. --region=us-central1",
+    "logs:shoptet": "gcloud functions logs read import-shoptet-products --gen2 --region=us-central1 --limit=50",
+    "logs:eso": "gcloud functions logs read import-eso-sets --gen2 --region=us-central1 --limit=50",
+    "logs:api": "gcloud logging read 'resource.type=cloud_run_revision AND resource.labels.service_name=product-sets-api' --limit=50",
+    "trigger:shoptet": "gcloud scheduler jobs run import-shoptet-daily --location=us-central1",
+    "trigger:eso": "gcloud scheduler jobs run import-eso-daily --location=us-central1",
+    "bq:query": "bq query --use_legacy_sql=false",
+    "bq:count": "bq query --use_legacy_sql=false 'SELECT (SELECT COUNT(*) FROM `cm-monitoring.product_sets.products`) as products, (SELECT COUNT(*) FROM `cm-monitoring.product_sets.set_items`) as set_items'"
+  },
+  "keywords": [
+    "shoptet",
+    "eso9",
+    "bigquery",
+    "google-cloud",
+    "product-sets"
+  ],
+  "author": "Chut Moravy",
+  "license": "UNLICENSED"
+}
